@@ -69,6 +69,10 @@ textarea { min-height:78px; resize:vertical; }
 .chat { max-height:200px; overflow:auto; display:grid; gap:6px; margin:10px 0; }
 .msg { background:#1c1c1c; border-radius:10px; padding:8px 10px; font-size:12px; }
 .msg.me { background:#3a2e08; }
+.pix-qr { display:block; width:180px; height:180px; margin:14px auto 6px; background:white; border-radius:12px; padding:8px; }
+.pix-payload { min-height:92px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:10px; overflow-wrap:anywhere; }
+.pix-copy { margin-top:8px; }
+.pix-copy-status { margin-top:6px; }
 .empty { text-align:center; color:var(--muted); padding:24px 8px; }
 .small { font-size:11px; color:var(--muted); }
 hr { border:0; border-top:1px solid var(--border); margin:16px 0; }
