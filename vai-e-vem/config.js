@@ -3,5 +3,5 @@
 // NUNCA coloque service_role, secret key, senha de banco ou credenciais privadas aqui.
 window.VAI_E_VEM_CONFIG = Object.freeze({
   supabaseUrl: 'https://zcwpxkwgxjkgaknhnscu.supabase.co',
-  supabasePublishableKey: '',
+  supabasePublishableKey: 'sb_publishable_jpzFBg2-vczuP_AQuiLB5w_RsgUXu3D',
 });
