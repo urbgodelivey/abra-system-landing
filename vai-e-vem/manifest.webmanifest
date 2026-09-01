@@ -1,0 +1,12 @@
+{
+  "name": "Vai e Vem Entregas",
+  "short_name": "Vai e Vem",
+  "description": "Operação simples de entregas em Caruaru-PE",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#111111",
+  "lang": "pt-BR",
+  "orientation": "portrait-primary"
+}
