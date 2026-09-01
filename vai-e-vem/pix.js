@@ -31,7 +31,7 @@ export function buildPixPayload({ key, holder, city = 'Caruaru', amount }) {
   const pixKey = String(key || '').trim();
   if (!pixKey) return '';
 
-  const merchantAccount = emv('00', 'BR.GOV.BCB.PIX') + emv('01', pixKey);
+  const merchantAccount = emv('00', 'br.gov.bcb.pix') + emv('01', pixKey);
   const safeHolder = cleanText(holder || 'VAI E VEM', 25) || 'VAI E VEM';
   const safeCity = cleanText(city || 'CARUARU', 15) || 'CARUARU';
   const numericAmount = Number(amount);
