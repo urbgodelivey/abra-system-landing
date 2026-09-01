@@ -1,0 +1,23 @@
+name: vai_e_vem_driver
+description: App Android mínimo do motorista do Vai e Vem.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  supabase_flutter: 2.5.0
+  geolocator: 11.0.0
+  url_launcher: 6.2.5
+  intl: 0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 4.0.0
+
+flutter:
+  uses-material-design: true
