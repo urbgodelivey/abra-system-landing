@@ -40,6 +40,9 @@ A publishable key ainda não está versionada. `config.js` mantém o campo vazio
 - preço a partir da distância informada;
 - valor mínimo + quilômetros incluídos + preço por km excedente;
 - pagamento Dinheiro ou Pix;
+- Pix copia-e-cola com valor da entrega;
+- QR Code Pix gerado no navegador;
+- payload Pix alinhado ao Manual de Padrões para Iniciação do Pix v2.10.0 do Banco Central;
 - fluxo de status:
   - Solicitado;
   - Aceito;
@@ -109,7 +112,6 @@ Para a operação real, a recomendação é reutilizar a camada Flutter do `UrbG
 ## Ainda pendente no produto
 
 - cálculo automático da distância por serviço de rotas;
-- QR Code e Pix copia-e-cola completo;
 - validação real do banco Supabase;
 - publishable key do novo projeto;
 - testes multiaparelho;
