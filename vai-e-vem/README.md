@@ -27,13 +27,13 @@ O Vai e Vem possui um projeto Supabase separado:
 
 **Esse projeto é o único destino permitido para o banco do Vai e Vem.**
 
-A publishable key ainda não está versionada. `config.js` mantém o campo vazio até a chave pública ser recuperada/confirmada. Nunca colocar `service_role`, secret key, senha de banco ou qualquer credencial privada no frontend.
+A publishable key moderna ativa foi confirmada e configurada em `config.js`. Nunca colocar `service_role`, secret key, senha de banco ou qualquer credencial privada no frontend.
 
 ## Implementado no frontend
 
 - PWA mobile-first acessível por link;
-- modo local de demonstração enquanto o backend não estiver configurado;
-- modo Supabase preparado para ativação automática;
+- modo local de demonstração quando o backend não estiver configurado;
+- modo Supabase remoto configurado;
 - cadastro de estabelecimento;
 - login/logout;
 - criação de entrega;
@@ -59,12 +59,14 @@ A publishable key ainda não está versionada. `config.js` mantém o campo vazio
 - chat vinculado ao pedido;
 - painel operacional/admin;
 - configuração de preços e Pix;
-- Supabase Realtime preparado para entregas, localização e mensagens;
+- Supabase Realtime para entregas, localização e mensagens;
 - service worker com cache do shell da PWA sem prender `config.js` em cache antigo.
 
-## Backend preparado
+## Backend instalado
 
-`supabase/schema.sql` define:
+`supabase/schema.sql` foi aplicado no projeto dedicado como migração `vai_e_vem_mvp_schema`.
+
+O backend possui:
 
 - `profiles`;
 - `pricing_config`;
@@ -76,46 +78,81 @@ A publishable key ainda não está versionada. `config.js` mantém o campo vazio
 - cálculo de preço no servidor;
 - regras de transição de status;
 - timestamps operacionais;
-- RLS em todas as tabelas expostas;
-- políticas por papel e participação na entrega;
-- Realtime nas tabelas operacionais necessárias;
+- RLS em 6/6 tabelas;
+- 22 políticas RLS;
+- Realtime em `deliveries`, `driver_locations` e `delivery_messages`;
 - cadastro inicial sempre como `establishment`;
 - nenhuma autorização baseada em `user_metadata`.
 
-`supabase/verify.sql` contém consultas somente leitura para conferir tabelas, RLS, políticas, Realtime e configurações após a migração.
+`supabase/verify.sql` foi executado com sucesso após a migração.
 
-## Estado real atual
+Configuração inicial validada:
 
-O código do backend está **preparado, mas a aplicação da migração no projeto novo ainda não está confirmada**. A conexão do Supabase ficou indisponível durante a tentativa de migração, então não se deve assumir que nenhuma tabela existe até uma leitura do projeto confirmar o estado.
+- mínimo: R$ 7,00;
+- incluídos: 3 km;
+- km adicional: R$ 1,50;
+- precificação ativa;
+- titular Pix: Vai e Vem;
+- cidade Pix: Caruaru;
+- chave Pix: ainda não configurada.
 
-Enquanto `supabasePublishableKey` permanecer vazia em `config.js`, o aplicativo continua no modo local, sem sincronização entre aparelhos.
+## Advisors
+
+O advisor de segurança apontou dois warnings ligados à função preexistente `public.rls_auto_enable()`.
+
+Essa função **não foi criada pelo schema do Vai e Vem**. Ela foi encontrada como `SECURITY DEFINER` e executável por roles públicas. O arquivo `supabase/hardening_rls_auto_enable.sql` foi preparado para revogar `EXECUTE` de `public`, `anon` e `authenticated` sem apagar nem modificar a implementação da função.
+
+O advisor de performance apontou:
+
+- 4 foreign keys ainda sem índice de cobertura;
+- índices recém-criados marcados como `unused`, esperado em banco ainda sem tráfego;
+- múltiplas políticas permissivas em operações de `deliveries` e `driver_locations`.
+
+Esses itens devem ser reavaliados após os primeiros testes e antes de escalar volume.
+
+## App motorista
+
+Existe um cliente Flutter mínimo em `driver/` com:
+
+- login;
+- solicitações pendentes;
+- aceitar entrega;
+- entrega atual;
+- avanço de status;
+- histórico;
+- ganhos;
+- Supabase Realtime;
+- GPS com foreground service no Android;
+- navegação externa para coleta e destino.
+
+O app recebe `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` por `--dart-define` no build, evitando credenciais privadas versionadas.
 
 ## Próximas validações obrigatórias
 
-1. recuperar a conexão com o projeto Supabase exclusivo;
-2. listar tabelas/migrações antes de escrever qualquer coisa;
-3. aplicar `schema.sql` somente se o banco estiver vazio/compatível;
-4. executar `verify.sql`;
-5. rodar advisors de segurança e performance;
-6. recuperar a publishable key e ativar o modo remoto;
-7. criar usuários de teste para `establishment`, `driver` e `admin`;
-8. testar RLS com permissões permitidas e negadas;
-9. testar pedido em dois aparelhos diferentes;
-10. testar Realtime, chat e localização.
+1. aplicar e validar `supabase/hardening_rls_auto_enable.sql` no projeto dedicado;
+2. rodar novamente advisors de segurança e performance;
+3. criar usuários de teste para `establishment`, `driver` e `admin`;
+4. promover os usuários de motorista/admin de forma administrativa usando `bootstrap_roles.sql`;
+5. testar RLS com operações permitidas e negadas;
+6. publicar a PWA em hosting isolado;
+7. testar pedido em dois aparelhos diferentes;
+8. testar Realtime, chat e localização;
+9. compilar e testar o app Flutter do motorista;
+10. integrar cálculo automático de rota/distância.
 
 ## GPS do motorista
 
 A PWA consegue compartilhar GPS enquanto o navegador mantém a execução, porém **GPS contínuo em segundo plano não é confiável em PWA móvel** quando o motorista troca para outro aplicativo, bloqueia a tela ou entra na navegação.
 
-Para a operação real, a recomendação é reutilizar a camada Flutter do `UrbGo` para um cliente mínimo de motorista do Vai e Vem, mantendo o Web/PWA para estabelecimentos e painel/admin.
+Por isso o módulo Flutter do motorista é o caminho recomendado para a operação real, mantendo Web/PWA para estabelecimentos e painel/admin.
 
 ## Ainda pendente no produto
 
+- hardening final do warning `public.rls_auto_enable()`;
+- chave Pix da operação;
 - cálculo automático da distância por serviço de rotas;
-- validação real do banco Supabase;
-- publishable key do novo projeto;
 - testes multiaparelho;
-- rastreamento robusto do motorista em segundo plano via app móvel;
+- compilação/teste do motorista Android;
 - implantação/hosting definitivo.
 
 ## Não entra no MVP
@@ -142,4 +179,4 @@ Para a operação real, a recomendação é reutilizar a camada Flutter do `UrbG
 - `arkgo-admin`: referências para listagem operacional, mapa ao vivo e painel.
 - `abrasystem-painel-web`: referências de experiência web, formulários, mapas e organização visual.
 
-Nenhum segredo ou credencial dos projetos de origem deve ser copiado para este MVP.
+Nenhum segredo ou credencial privada dos projetos de origem deve ser copiado para este MVP.
