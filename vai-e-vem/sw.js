@@ -1,9 +1,10 @@
-const CACHE = 'vai-e-vem-shell-v2';
+const CACHE = 'vai-e-vem-shell-v3';
 const CORE = [
   './',
   './index.html',
   './styles.css',
   './app.js',
+  './pix.js',
   './supabase-client.js',
   './manifest.webmanifest',
 ];
