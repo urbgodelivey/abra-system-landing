@@ -96,19 +96,28 @@ Configuração inicial validada:
 - cidade Pix: Caruaru;
 - chave Pix: ainda não configurada.
 
-## Advisors
+## Advisors e hardening
 
-O advisor de segurança apontou dois warnings ligados à função preexistente `public.rls_auto_enable()`.
+O hardening de `public.rls_auto_enable()` foi aplicado no projeto dedicado sem alterar sua implementação nem qualquer tabela.
 
-Essa função **não foi criada pelo schema do Vai e Vem**. Ela foi encontrada como `SECURITY DEFINER` e executável por roles públicas. O arquivo `supabase/hardening_rls_auto_enable.sql` foi preparado para revogar `EXECUTE` de `public`, `anon` e `authenticated` sem apagar nem modificar a implementação da função.
+Estado confirmado após o hardening:
 
-O advisor de performance apontou:
+- função continua existindo;
+- continua `SECURITY DEFINER`;
+- owner continua `postgres`;
+- `PUBLIC` sem `EXECUTE`;
+- `anon` sem `EXECUTE`;
+- `authenticated` sem `EXECUTE`;
+- privilégios restantes: `postgres` e `service_role`;
+- advisor de segurança: **0 warnings**.
 
-- 4 foreign keys ainda sem índice de cobertura;
-- índices recém-criados marcados como `unused`, esperado em banco ainda sem tráfego;
-- múltiplas políticas permissivas em operações de `deliveries` e `driver_locations`.
+O advisor de performance ainda aponta 13 avisos, sem correção automática:
 
-Esses itens devem ser reavaliados após os primeiros testes e antes de escalar volume.
+- 4 foreign keys sem índice de cobertura;
+- 4 índices classificados como não utilizados, esperado em banco novo sem tráfego;
+- 5 casos de múltiplas políticas RLS permissivas.
+
+Esses itens não bloqueiam o MVP e devem ser reavaliados após os primeiros testes e antes de escalar volume.
 
 ## App motorista
 
@@ -129,16 +138,14 @@ O app recebe `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` por `--dart-define` no 
 
 ## Próximas validações obrigatórias
 
-1. aplicar e validar `supabase/hardening_rls_auto_enable.sql` no projeto dedicado;
-2. rodar novamente advisors de segurança e performance;
-3. criar usuários de teste para `establishment`, `driver` e `admin`;
-4. promover os usuários de motorista/admin de forma administrativa usando `bootstrap_roles.sql`;
-5. testar RLS com operações permitidas e negadas;
-6. publicar a PWA em hosting isolado;
-7. testar pedido em dois aparelhos diferentes;
-8. testar Realtime, chat e localização;
-9. compilar e testar o app Flutter do motorista;
-10. integrar cálculo automático de rota/distância.
+1. criar usuários de teste para `establishment`, `driver` e `admin`;
+2. promover os usuários de motorista/admin de forma administrativa usando `bootstrap_roles.sql`;
+3. testar RLS com operações permitidas e negadas;
+4. publicar a PWA em hosting isolado;
+5. testar pedido em dois aparelhos diferentes;
+6. testar Realtime, chat e localização;
+7. compilar e testar o app Flutter do motorista;
+8. integrar cálculo automático de rota/distância.
 
 ## GPS do motorista
 
@@ -148,7 +155,6 @@ Por isso o módulo Flutter do motorista é o caminho recomendado para a operaç�
 
 ## Ainda pendente no produto
 
-- hardening final do warning `public.rls_auto_enable()`;
 - chave Pix da operação;
 - cálculo automático da distância por serviço de rotas;
 - testes multiaparelho;
